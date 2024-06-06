@@ -137,7 +137,7 @@ def pedir_coordenada(indice):
         mensajes("e_tipoEntero") 
         """ "e_tipoEntero" significa el parámetro para desplegar el mensaje de error
         cuando lo ingresado es distinto a un número entero"""
-        return pedir_coordenada()
+        return pedir_coordenada(1)
     return int(cord)
 
 def obtener_coordenada():
@@ -175,6 +175,8 @@ def desplegar_difusion(tablero, cordenada, direccion):
         
         while punto_inicial < len(tablero[0]): 
             """ Imprime la cultura hasta que llegue al borde o máximo de la fila"""
+            if tablero[cordenada[0]][punto_inicial] == "PP":
+                return tablero
             tablero[cordenada[0]][punto_inicial] = "CC"
             punto_inicial += 1
         return tablero
@@ -209,25 +211,79 @@ def ejecutar_estrategia(estrategia, cordenada, tablero):
     return tablero
 
 def ejecutar_usurpadores(tablero):
-    terrenos = random.randint(0,len(tablero))
+    """
+    Funcion que coloca los terrenos usurpados dependiendo del turno del jugador y a como este
+    el tablero
+    """
+    terrenos = random.randint(0,len(tablero)//2)
+    """ Cantidad de terreros a usurpar se define por cantidad de filas entre 2"""
     while terrenos > 0:
         i = random.randint(0,len(tablero)-1)
         j = random.randint(0,len(tablero[0])-1)
-        print (f"{i},{j}")
+        """ Escoje una posicion random del tablero """
+        print (f"{i},{j}") # PRINT TEMPORAL PARA VER LOS INDICES QUE VA CAMBIAR
         if tablero[i][j] == "PP":
             tablero[i][j] = "XX"
+            """ Si en la casilla se encuentra un proyecto lo destruye y lo usurpa """
         
         if tablero[i][j] == "II":
             tablero[i][j] = "II"
+            """ Si en la casilla se encuentra una iniciativa lo deja igual """
 
         if tablero[i][j] == "CC":
             tablero[i][j] = "██"
+            """ Si en la casilla se encuentra una cultural lo destruye pero no lo usurpa """
+            
         else:
             tablero[i][j] = "XX"
         terrenos -= 1
+        
     imprimir_matriz(tablero) # PRINT TEMPORAL 
     
+def verificar_terrenos(tablero):
+    """
+    Función que determina si hay toda una columna o fila con "PP" o "XX"
+    """
+    j = 0
+    largo_fila = len(tablero[0])
+    largo_tablero = len(tablero)
+    for fila in tablero: 
+        """ Verifica las filas """
+        ganador = 1
+        perdedor = 1 
+        for casilla in fila:
+            if casilla == "PP":
+                ganador += 1
+            if ganador == largo_fila:
+                return True
+            if casilla == "XX":
+                perdedor += 1
+            if perdedor == largo_fila:
+                return False 
+
+    while j < len(tablero):
+        """ Verifica las columnas """
+        i = 0
+        ganador = 1
+        perdedor = 1
+        while i < len(tablero):
+            if tablero[i][j] == "PP":
+                ganador += 1
+            if ganador == len(tablero):
+                return True
+            if tablero[i][j] == "XX":
+                perdedor += 1
+            if perdedor == len(tablero):
+                return False
+            i += 1
+        j += 1
             
+def cambiar_iniciativas(tablero,coordenada):
+    segundo_save = save
+    if tablero[coordenada[0]][coordenada[1]] == "II":
+        save = coordenada
+
+
 
 
 
@@ -237,3 +293,4 @@ estrategia = plantear_turno()
 coordenada = obtener_coordenada()
 tablero = ejecutar_estrategia(estrategia, coordenada, tablero)
 ejecutar_usurpadores(tablero)
+print (verificar_terrenos(tablero))
